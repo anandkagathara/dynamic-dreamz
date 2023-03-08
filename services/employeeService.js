@@ -1,7 +1,7 @@
 const Joi = require("joi");
 const Employee = require("../models/Employee");
 
-const createEmployee = async (employeeData) => {
+const createEmployee = async (employeeData, companyId) => {
   const newEmployee = new Employee({
     name: employeeData.name,
     email: employeeData.email,
@@ -9,12 +9,13 @@ const createEmployee = async (employeeData) => {
     position: employeeData.position,
     department: employeeData.department,
     salary: employeeData.salary,
+    company_id: companyId,
   });
 
   return await newEmployee.save();
 };
 
-const getEmployees = async (name, surname, position, salary) => {
+const getEmployees = async (name, surname, position,salary) => {
   try {
     const query = {};
 
@@ -27,12 +28,14 @@ const getEmployees = async (name, surname, position, salary) => {
     if (position && typeof position === "string") {
       query.position = { $regex: position, $options: "i" };
     }
-    if (salary && typeof salary === "number") {
-      query.salary = salary;
+    if (salary && typeof salary ) {
+      query.salary = { $eq: salary };
     }
 
     const employees = await Employee.find(query);
-
+    if (employees.length == 0) {
+      return { message: "No Employee" };
+    }
     return employees;
   } catch (error) {
     console.error(error);
@@ -53,8 +56,24 @@ const updateEmployee = async (employeeId, employeeData) => {
   if (!employee) {
     throw new Error("Employee not found");
   }
-  await Employee.findByIdAndUpdate(employeeId, employeeData);
-  return await Employee.findById(employeeId);
+  const { name, surname, position, department, salary } = employeeData;
+  if (name) {
+    employee.name = name;
+  }
+  if (surname) {
+    employee.surname = surname;
+  }
+  if (position) {
+    employee.position = position;
+  }
+  if (department) {
+    employee.department = department;
+  }
+  if (salary) {
+    employee.salary = salary;
+  }
+  await employee.save();
+  return employee;
 };
 
 const deleteEmployee = async (employeeId) => {

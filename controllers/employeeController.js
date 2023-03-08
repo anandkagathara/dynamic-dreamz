@@ -8,7 +8,7 @@ const EmployeeService = require("../services/employeeService");
 exports.createEmployee = async (req, res) => {
   try {
     await EmployeeValidator.createEmployeeValidator(req.body);
-    const data = await EmployeeService.createEmployee(req.body);
+    const data = await EmployeeService.createEmployee(req.body, req.company.id);
     res.status(200).json({
       message: "Employee created successfully",
       data: data,
@@ -23,12 +23,17 @@ exports.getEmployees = async (req, res) => {
   try {
     let { name, surname, position, salary } = req.query;
 
-    // If no search criteria are provided, get all employees
+    //If no search criteria are provided, get all employees
     if (!name && !surname && !position && !salary) {
-      name = surname = position = salary = null;
+      name = surname = position = salary;
     }
 
-    const employees = await EmployeeService.getEmployees(name, surname, position, salary);
+    const employees = await EmployeeService.getEmployees(
+      name,
+      surname,
+      position,
+      salary
+    );
 
     res.status(200).json({
       message: "Employee list retrieved successfully",

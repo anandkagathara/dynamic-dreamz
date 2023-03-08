@@ -16,3 +16,7 @@
    - Delete Employee
 
 4) Logout API
+
+
+#   Note : In this not company wise employee operation we can add also 
+         -give permission only own employee details access 
